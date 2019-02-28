@@ -203,6 +203,23 @@ UI.Row = function () {
 UI.Row.prototype = Object.create( UI.Element.prototype );
 UI.Row.prototype.constructor = UI.Row;
 
+//UI.GetRow
+UI.GetRow = function (name) {
+
+    UI.Element.call(this);
+
+    var dom = document.getElementById(name);
+    dom.className = 'Row';
+
+    this.dom = dom;
+
+    return this;
+
+};
+
+UI.GetRow.prototype = Object.create(UI.Element.prototype);
+UI.GetRow.prototype.constructor = UI.GetRow;
+
 // Panel
 
 UI.Panel = function () {
@@ -304,7 +321,44 @@ UI.Input.prototype.setValue = function ( value ) {
 	return this;
 
 };
+//UI.GetInput
+UI.GetInput = function (text, name) {
 
+    UI.Element.call(this);
+
+    var scope = this;
+
+    var dom = document.getElementById(name);
+
+    dom.addEventListener('keydown', function (event) {
+
+        event.stopPropagation();
+
+    }, false);
+
+    this.dom = dom;
+    this.setValue(text);
+
+    return this;
+
+};
+
+UI.GetInput.prototype = Object.create(UI.Element.prototype);
+UI.GetInput.prototype.constructor = UI.Input;
+
+UI.GetInput.prototype.getValue = function () {
+
+    return this.dom.value;
+
+};
+
+UI.GetInput.prototype.setValue = function (value) {
+
+    this.dom.value = value;
+
+    return this;
+
+};
 
 // TextArea
 
@@ -434,7 +488,7 @@ UI.Select.prototype.setValue = function ( value ) {
 	return this;
 
 };
-/*
+/* UI.GetSelect
 var materialSide = new UI.GetSelect(0, "material_side"); //.onChange(update); //定义了哪一边的面将会被渲染 —— 正面0，或是反面1，还是两个面都渲染2
 // console.log(materialSide.dom);
 // materialSide.dom.onChange(update);
@@ -492,7 +546,42 @@ UI.Checkbox.prototype.setValue = function ( value ) {
 	return this;
 
 };
+//UI.GetCheckbox
+UI.GetCheckbox = function (boolean, name) {
 
+    UI.Element.call(this);
+
+    var scope = this;
+
+    var dom = document.getElementById(name);
+
+    this.dom = dom;
+    this.setValue(boolean);
+
+    return this;
+
+};
+
+UI.GetCheckbox.prototype = Object.create(UI.Element.prototype);
+UI.GetCheckbox.prototype.constructor = UI.GetCheckbox;
+
+UI.GetCheckbox.prototype.getValue = function () {
+
+    return this.dom.checked;
+
+};
+
+UI.GetCheckbox.prototype.setValue = function (value) {
+
+    if (value !== undefined) {
+
+        this.dom.checked = value;
+
+    }
+
+    return this;
+
+};
 
 // Color
 
@@ -767,7 +856,7 @@ UI.Number.prototype.setUnit = function ( unit ) {
 	return this;
 
 };
-
+//UI.GetNumber
 UI.GetNumber = function (number, name) {
 
     UI.Element.call(this);
