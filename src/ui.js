@@ -507,6 +507,25 @@ UI.GetSelect = function (value, name) {
     return this;
 };
 
+UI.GetSelect.prototype.getValue = function () {
+
+    return this.dom.value;
+
+};
+
+UI.GetSelect.prototype.setValue = function (value) {
+
+    value = String(value);
+
+    if (this.dom.value !== value) {
+
+        this.dom.value = value;
+
+    }
+
+    return this;
+};
+
 // Checkbox
 
 UI.Checkbox = function ( boolean ) {
