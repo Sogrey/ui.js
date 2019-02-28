@@ -434,6 +434,24 @@ UI.Select.prototype.setValue = function ( value ) {
 	return this;
 
 };
+/*
+var materialSide = new UI.GetSelect(0, "material_side"); //.onChange(update); //定义了哪一边的面将会被渲染 —— 正面0，或是反面1，还是两个面都渲染2
+// console.log(materialSide.dom);
+// materialSide.dom.onChange(update);
+$(materialSide.dom).change(update);
+*/
+UI.GetSelect = function (value, name) {
+
+    UI.Element.call(this);
+
+    var scope = this;
+
+    var dom = document.getElementById(name);
+    this.dom = dom;
+    this.value = value;
+
+    return this;
+};
 
 // Checkbox
 
@@ -690,6 +708,33 @@ UI.Number.prototype.setValue = function ( value ) {
 
 };
 
+//初始值
+UI.Number.prototype.getInitValue = function () {
+
+    return this.initValue;
+
+};
+
+UI.Number.prototype.setInitValue = function (initValue) {
+
+    if (initValue !== undefined) {
+
+        initValue = parseFloat(initValue);
+
+        if (initValue < this.min) initValue = this.min;
+        if (initValue > this.max) initValue = this.max;
+
+        this.initValue = initValue;
+        this.dom.initValuet = initValue.toFixed(this.precision);
+
+        if (this.unit !== '') this.dom.initValue += ' ' + this.unit;
+
+    }
+
+    return this;
+
+};
+
 UI.Number.prototype.setPrecision = function ( precision ) {
 
 	this.precision = precision;
@@ -723,6 +768,216 @@ UI.Number.prototype.setUnit = function ( unit ) {
 
 };
 
+UI.GetNumber = function (number, name) {
+
+    UI.Element.call(this);
+
+    var scope = this;
+
+    var dom = document.getElementById(name);
+    dom.className = 'Number';
+    dom.value = '0.0000';dom.initValue = '0.0000';
+
+    dom.addEventListener('keydown', function (event) {
+
+        event.stopPropagation();
+
+        if (event.keyCode === 13) dom.blur();
+
+    }, false);
+
+    this.value = 0;
+    this.initValue = 0;//初始值
+
+    this.min = -Infinity;
+    this.max = Infinity;
+
+    this.precision = 4;
+    this.step = 1;
+    this.unit = '';
+
+    this.dom = dom;
+
+    this.setValue(number);this.setInitValue(number);
+
+    var changeEvent = document.createEvent('HTMLEvents');
+    changeEvent.initEvent('change', true, true);
+
+    var distance = 0;
+    var onMouseDownValue = 0;
+
+    var pointer = [0, 0];
+    var prevPointer = [0, 0];
+
+    function onMouseDown(event) {
+
+        event.preventDefault();
+
+        distance = 0;
+
+        onMouseDownValue = scope.value;
+
+        prevPointer = [event.clientX, event.clientY];
+
+        document.addEventListener('mousemove', onMouseMove, false);
+        document.addEventListener('mouseup', onMouseUp, false);
+
+    }
+
+    function onMouseMove(event) {
+
+        var currentValue = scope.value;
+
+        pointer = [event.clientX, event.clientY];
+
+        distance += (pointer[0] - prevPointer[0]) - (pointer[1] - prevPointer[1]);
+
+        var value = onMouseDownValue + (distance / (event.shiftKey ? 5 : 50)) * scope.step;
+        value = Math.min(scope.max, Math.max(scope.min, value));
+
+        if (currentValue !== value) {
+
+            scope.setValue(value);
+            dom.dispatchEvent(changeEvent);
+
+        }
+
+        prevPointer = [event.clientX, event.clientY];
+
+    }
+
+    function onMouseUp(event) {
+
+        document.removeEventListener('mousemove', onMouseMove, false);
+        document.removeEventListener('mouseup', onMouseUp, false);
+
+        if (Math.abs(distance) < 2) {
+
+            dom.focus();
+            dom.select();
+
+        }
+
+    }
+
+    function onChange(event) {
+
+        scope.setValue(dom.value);
+
+    }
+
+    function onFocus(event) {
+
+        dom.style.backgroundColor = '';
+        dom.style.cursor = '';
+
+    }
+
+    function onBlur(event) {
+
+        dom.style.backgroundColor = 'transparent';
+        dom.style.cursor = 'col-resize';
+
+    }
+
+    onBlur();
+
+    dom.addEventListener('mousedown', onMouseDown, false);
+    dom.addEventListener('change', onChange, false);
+    dom.addEventListener('focus', onFocus, false);
+    dom.addEventListener('blur', onBlur, false);
+
+    return this;
+
+};
+
+UI.GetNumber.prototype = Object.create(UI.Element.prototype);
+UI.GetNumber.prototype.constructor = UI.Number;
+
+UI.GetNumber.prototype.getValue = function () {
+
+    return this.value;
+
+};
+
+UI.GetNumber.prototype.setValue = function (value) {
+
+    if (value !== undefined) {
+
+        value = parseFloat(value);
+
+        if (value < this.min) value = this.min;
+        if (value > this.max) value = this.max;
+
+        this.value = value;
+        this.dom.value = value.toFixed(this.precision);
+
+        if (this.unit !== '') this.dom.value += ' ' + this.unit;
+
+    }
+
+    return this;
+
+};
+//初始值
+UI.GetNumber.prototype.getInitValue = function () {
+
+    return this.initValue;
+
+};
+
+UI.GetNumber.prototype.setInitValue = function (initValue) {
+
+    if (initValue !== undefined) {
+
+        initValue = parseFloat(initValue);
+
+        if (initValue < this.min) initValue = this.min;
+        if (initValue > this.max) initValue = this.max;
+
+        this.initValue = initValue;
+        this.dom.initValue = initValue.toFixed(this.precision);
+
+        if (this.unit !== '') this.dom.initValue += ' ' + this.unit;
+
+    }
+
+    return this;
+
+};
+
+UI.GetNumber.prototype.setPrecision = function (precision) {
+
+    this.precision = precision;
+
+    return this;
+
+};
+
+UI.GetNumber.prototype.setStep = function (step) {
+
+    this.step = step;
+
+    return this;
+
+};
+
+UI.GetNumber.prototype.setRange = function (min, max) {
+
+    this.min = min;
+    this.max = max;
+
+    return this;
+
+};
+
+UI.GetNumber.prototype.setUnit = function (unit) {
+
+    this.unit = unit;
+
+    return this;
+
+};
 // Integer
 
 UI.Integer = function ( number ) {
